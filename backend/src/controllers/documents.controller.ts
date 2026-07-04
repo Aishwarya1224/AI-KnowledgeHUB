@@ -2,9 +2,11 @@ import { Request, Response } from "express";
 import {
   createDocumentRecord,
   getAllDocuments,
+  updateDocumentStatus,
 } from "../services/document.service";
+import { extractTextFromPdf } from "../services/pdf.service";
 
-export const uploadDocument = (req: Request, res: Response) => {
+export const uploadDocument = async (req: Request, res: Response) => {
   try {
     if (!req.file) {
       return res.status(400).json({
@@ -19,8 +21,25 @@ export const uploadDocument = (req: Request, res: Response) => {
       filePath: req.file.path,
       fileSize: req.file.size,
       mimeType: req.file.mimetype,
-      status: "uploaded",
+      status: "processing",
     });
+
+    try {
+      const extractedText = await extractTextFromPdf(req.file.path);
+
+      updateDocumentStatus(documentRecord.id, "processed", {
+        extractedText,
+      });
+    } catch (processingError) {
+      console.error("PDF processing error:", processingError);
+
+      updateDocumentStatus(documentRecord.id, "failed", {
+        errorMessage:
+          processingError instanceof Error
+            ? processingError.message
+            : "Failed to process PDF",
+      });
+    }
 
     return res.status(200).json({
       success: true,

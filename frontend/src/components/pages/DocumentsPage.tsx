@@ -4,6 +4,19 @@ import { useEffect, useState } from "react";
 import { getDocuments } from "@/lib/documents";
 import { DocumentRecord } from "@/types/document";
 
+function getStatusStyles(status: DocumentRecord["status"]) {
+  switch (status) {
+    case "processed":
+      return "bg-green-100 text-green-700";
+    case "processing":
+      return "bg-yellow-100 text-yellow-700";
+    case "failed":
+      return "bg-red-100 text-red-700";
+    default:
+      return "bg-blue-100 text-blue-700";
+  }
+}
+
 export default function DocumentsPage() {
   const [documents, setDocuments] = useState<DocumentRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -62,7 +75,7 @@ export default function DocumentsPage() {
             {documents.map((doc) => (
               <div
                 key={doc.id}
-                className="flex items-center justify-between px-5 py-4"
+                className="flex items-start justify-between px-5 py-4"
               >
                 <div>
                   <p className="font-medium text-gray-900">{doc.originalName}</p>
@@ -72,9 +85,19 @@ export default function DocumentsPage() {
                   <p className="mt-1 text-sm text-gray-500">
                     Size: {(doc.fileSize / 1024).toFixed(2)} KB
                   </p>
+
+                  {doc.errorMessage && (
+                    <p className="mt-2 text-sm text-red-600">
+                      Error: {doc.errorMessage}
+                    </p>
+                  )}
                 </div>
 
-                <span className="rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-700">
+                <span
+                  className={`rounded-full px-3 py-1 text-sm font-medium ${getStatusStyles(
+                    doc.status
+                  )}`}
+                >
                   {doc.status}
                 </span>
               </div>

@@ -1,5 +1,5 @@
 import crypto from "crypto";
-import { DocumentRecord } from "../types/document.types";
+import { DocumentRecord, DocumentStatus } from "../types/document.types";
 
 const documents: DocumentRecord[] = [];
 
@@ -18,4 +18,28 @@ export function createDocumentRecord(
 
 export function getAllDocuments(): DocumentRecord[] {
   return documents;
+}
+
+export function getDocumentById(id: string): DocumentRecord | undefined {
+  return documents.find((doc) => doc.id === id);
+}
+
+export function updateDocumentStatus(
+  id: string,
+  status: DocumentStatus,
+  extraFields?: Partial<DocumentRecord>
+): DocumentRecord | undefined {
+  const document = getDocumentById(id);
+
+  if (!document) {
+    return undefined;
+  }
+
+  document.status = status;
+
+  if (extraFields) {
+    Object.assign(document, extraFields);
+  }
+
+  return document;
 }

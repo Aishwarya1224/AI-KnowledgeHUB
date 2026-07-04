@@ -9,4 +9,6 @@ export type DocumentRecord = {
   mimeType: string;
   status: DocumentStatus;
   uploadedAt: string;
+  extractedText?: string;
+  errorMessage?: string;
 };
