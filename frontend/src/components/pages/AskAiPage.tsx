@@ -192,5 +192,5 @@ export default function AskAiPage() {
         </section>
       )}
     </div>
-  );
+  )
 }

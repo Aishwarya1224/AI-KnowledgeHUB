@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { APIError } from "openai";
 import { getAllDocuments, getDocumentById } from "../services/document.service";
 import { retrieveRelevantChunks } from "../services/retrieval.service";
 import { generateAnswerFromChunks } from "../services/ai.service";
@@ -56,6 +57,13 @@ export const askQuestion = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error("Ask question error:", error);
+
+    if (error instanceof APIError) {
+      return res.status(error.status ?? 500).json({
+        success: false,
+        message: `OpenAI error: ${error.message}`,
+      });
+    }
 
     return res.status(500).json({
       success: false,

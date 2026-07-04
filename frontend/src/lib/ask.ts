@@ -15,6 +15,6 @@ type AskQuestionApiResponse = {
 export async function askQuestion(payload: AskQuestionPayload) {
   return apiRequest<AskQuestionApiResponse>("/api/ask", {
     method: "POST",
-    body: JSON.stringify(payload),
+    body: payload,
   });
 }

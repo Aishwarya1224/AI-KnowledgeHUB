@@ -28,17 +28,42 @@ function calculateChunkScore(chunkText: string, keywords: string[]): number {
   return score;
 }
 
+function getFallbackChunks(
+  documents: DocumentRecord[],
+  topK: number
+): RetrievedChunk[] {
+  const fallbackChunks: RetrievedChunk[] = [];
+
+  for (const document of documents) {
+    if (!document.chunks || document.chunks.length === 0) {
+      continue;
+    }
+
+    for (const chunk of document.chunks) {
+      fallbackChunks.push({
+        documentId: document.id,
+        documentName: document.originalName,
+        chunkId: chunk.id,
+        chunkIndex: chunk.chunkIndex,
+        content: chunk.content,
+        score: 0,
+      });
+
+      if (fallbackChunks.length >= topK) {
+        return fallbackChunks;
+      }
+    }
+  }
+
+  return fallbackChunks;
+}
+
 export function retrieveRelevantChunks(
   documents: DocumentRecord[],
   question: string,
   topK = 3
 ): RetrievedChunk[] {
   const keywords = getQuestionKeywords(question);
-
-  if (keywords.length === 0) {
-    return [];
-  }
-
   const scoredChunks: RetrievedChunk[] = [];
 
   for (const document of documents) {
@@ -47,7 +72,8 @@ export function retrieveRelevantChunks(
     }
 
     for (const chunk of document.chunks) {
-      const score = calculateChunkScore(chunk.content, keywords);
+      const score =
+        keywords.length > 0 ? calculateChunkScore(chunk.content, keywords) : 0;
 
       if (score > 0) {
         scoredChunks.push({
@@ -64,5 +90,9 @@ export function retrieveRelevantChunks(
 
   scoredChunks.sort((a, b) => b.score - a.score);
 
-  return scoredChunks.slice(0, topK);
+  if (scoredChunks.length > 0) {
+    return scoredChunks.slice(0, topK);
+  }
+
+  return getFallbackChunks(documents, topK);
 }
