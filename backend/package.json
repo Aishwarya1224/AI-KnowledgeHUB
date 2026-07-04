@@ -14,13 +14,15 @@
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
-    "multer": "^2.2.0"
+    "multer": "^2.2.0",
+    "pdf-parse": "^2.2.2"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/multer": "^2.2.0",
     "@types/node": "^26.1.0",
+    "@types/pdf-parse": "^1.1.5",
     "ts-node-dev": "^2.0.0",
     "typescript": "^6.0.3"
   }
