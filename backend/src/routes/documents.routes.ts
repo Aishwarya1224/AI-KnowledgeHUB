@@ -1,8 +1,13 @@
 import { Router } from "express";
 import { upload } from "../config/multer";
-import { uploadDocument } from "../controllers/documents.controller";
+import {
+  getDocuments,
+  uploadDocument,
+} from "../controllers/documents.controller";
 
 const router = Router();
+
+router.get("/", getDocuments);
 
 router.post("/upload", (req, res, next) => {
   upload.single("file")(req, res, (error) => {
