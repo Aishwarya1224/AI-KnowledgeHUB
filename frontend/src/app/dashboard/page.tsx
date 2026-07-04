@@ -1,4 +1,4 @@
-import DashboardOverview from "@/components/dashboard/DashboardOverview";
+import DashboardOverview from "@/components/pages/DashboardPage";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 
 export default function DashboardPage() {
