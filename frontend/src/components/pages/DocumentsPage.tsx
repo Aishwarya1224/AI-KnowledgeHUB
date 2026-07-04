@@ -1,19 +1,36 @@
-const mockDocuments = [
-  {
-    id: 1,
-    name: "Product Requirements.pdf",
-    status: "Processed",
-    uploadedAt: "2026-07-04",
-  },
-  {
-    id: 2,
-    name: "Engineering Notes.pdf",
-    status: "Pending",
-    uploadedAt: "2026-07-03",
-  },
-];
+"use client";
+
+import { useEffect, useState } from "react";
+import { getDocuments } from "@/lib/documents";
+import { DocumentRecord } from "@/types/document";
 
 export default function DocumentsPage() {
+  const [documents, setDocuments] = useState<DocumentRecord[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  useEffect(() => {
+    async function fetchDocuments() {
+      try {
+        setIsLoading(true);
+        setErrorMessage("");
+
+        const response = await getDocuments();
+        setDocuments(response.data);
+      } catch (error) {
+        const message =
+          error instanceof Error
+            ? error.message
+            : "Failed to fetch documents";
+        setErrorMessage(message);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchDocuments();
+  }, []);
+
   return (
     <div className="space-y-6">
       <section>
@@ -30,31 +47,40 @@ export default function DocumentsPage() {
           </h2>
         </div>
 
-        <div className="divide-y divide-gray-200">
-          {mockDocuments.map((doc) => (
-            <div
-              key={doc.id}
-              className="flex items-center justify-between px-5 py-4"
-            >
-              <div>
-                <p className="font-medium text-gray-900">{doc.name}</p>
-                <p className="mt-1 text-sm text-gray-500">
-                  Uploaded on {doc.uploadedAt}
-                </p>
-              </div>
-
-              <span
-                className={`rounded-full px-3 py-1 text-sm font-medium ${
-                  doc.status === "Processed"
-                    ? "bg-green-100 text-green-700"
-                    : "bg-yellow-100 text-yellow-700"
-                }`}
+        {isLoading ? (
+          <div className="px-5 py-6 text-sm text-gray-600">
+            Loading documents...
+          </div>
+        ) : errorMessage ? (
+          <div className="px-5 py-6 text-sm text-red-600">{errorMessage}</div>
+        ) : documents.length === 0 ? (
+          <div className="px-5 py-6 text-sm text-gray-600">
+            No documents uploaded yet.
+          </div>
+        ) : (
+          <div className="divide-y divide-gray-200">
+            {documents.map((doc) => (
+              <div
+                key={doc.id}
+                className="flex items-center justify-between px-5 py-4"
               >
-                {doc.status}
-              </span>
-            </div>
-          ))}
-        </div>
+                <div>
+                  <p className="font-medium text-gray-900">{doc.originalName}</p>
+                  <p className="mt-1 text-sm text-gray-500">
+                    Uploaded on {new Date(doc.uploadedAt).toLocaleString()}
+                  </p>
+                  <p className="mt-1 text-sm text-gray-500">
+                    Size: {(doc.fileSize / 1024).toFixed(2)} KB
+                  </p>
+                </div>
+
+                <span className="rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-700">
+                  {doc.status}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
       </section>
     </div>
   );
