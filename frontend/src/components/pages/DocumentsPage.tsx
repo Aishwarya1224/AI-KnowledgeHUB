@@ -86,6 +86,12 @@ export default function DocumentsPage() {
                     Size: {(doc.fileSize / 1024).toFixed(2)} KB
                   </p>
 
+                  {doc.status === "processed" && (
+                    <p className="mt-1 text-sm text-gray-500">
+                      Chunks created: {doc.chunks?.length ?? 0}
+                    </p>
+                  )}
+
                   {doc.errorMessage && (
                     <p className="mt-2 text-sm text-red-600">
                       Error: {doc.errorMessage}

@@ -5,6 +5,7 @@ import {
   updateDocumentStatus,
 } from "../services/document.service";
 import { extractTextFromPdf } from "../services/pdf.service";
+import { chunkText } from "../services/chunk.service";
 
 export const uploadDocument = async (req: Request, res: Response) => {
   try {
@@ -26,9 +27,11 @@ export const uploadDocument = async (req: Request, res: Response) => {
 
     try {
       const extractedText = await extractTextFromPdf(req.file.path);
+      const chunks = await chunkText(extractedText, documentRecord.id);
 
       updateDocumentStatus(documentRecord.id, "processed", {
         extractedText,
+        chunks,
       });
     } catch (processingError) {
       console.error("PDF processing error:", processingError);
